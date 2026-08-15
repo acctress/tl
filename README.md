@@ -17,5 +17,5 @@ A toy language written in Rust, to be used as a learning reference.
 - [x] Recursive Descent Parser
 - [x] Semantic Analysis (e.g. type checking)
 - [ ] AST Evaluator
-- [ ] Bytecode Compilation
-- [ ] Bytecode VM
+- [x] Bytecode Compilation
+- [x] Bytecode VM
