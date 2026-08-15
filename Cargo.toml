@@ -7,5 +7,7 @@ edition = "2024"
 members = ["crates/tl-parser", "crates/tl-analyser", "crates/tl-vm"]
 
 [dependencies]
+clap = { version = "4", features = ["derive"] }
 tl-parser   = { path = "crates/tl-parser" }
 tl-analyser = { path = "crates/tl-analyser" }
+tl-vm = { path = "crates/tl-vm"}

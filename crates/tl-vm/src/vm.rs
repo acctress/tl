@@ -12,27 +12,33 @@ impl Default for VMOptions {
 }
 
 pub struct VM {
-    regs: [u64; 256],
+    regs: [f64; 256],
     pc: usize,
     bytecode: Vec<Instr>,
+    constants: Vec<f64>,
     opts: VMOptions,
 }
 
 impl VM {
-    pub fn new(bytecode: Vec<Instr>, opts: VMOptions) -> Self {
+    pub fn new(bytecode: Vec<Instr>, constants: Vec<f64>, opts: VMOptions) -> Self {
         Self {
-            regs: [0; 256],
+            regs: [0.0; 256],
             pc: 0,
+            constants,
             bytecode,
             opts,
         }
     }
 
-    pub fn get_reg(self, reg: usize) -> u64 {
+    pub fn get_reg(self, reg: usize) -> f64 {
         self.regs[reg]
     }
 
     pub fn run(&mut self) {
+        if self.opts.debug {
+            println!("[constants] {:?}", self.constants);
+        }
+        
         loop {
             let inst = self.bytecode[self.pc];
             self.pc += 1;
@@ -59,7 +65,7 @@ impl VM {
                 Opcode::Mul => self.regs[dst] = self.regs[src1] * self.regs[src2],
                 Opcode::Div => self.regs[dst] = self.regs[src1] / self.regs[src2],
                 Opcode::Mov => self.regs[dst] = self.regs[src1],
-                Opcode::Ldi => self.regs[dst] = src1 as u64,
+                Opcode::Ldi => self.regs[dst] = self.constants[src1],
                 Opcode::Halt => break,
             }
         }
