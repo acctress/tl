@@ -1,15 +1,15 @@
-use tl_parser::TypeExpr;
 use crate::context::{Context, Symbol, Type};
 use crate::error::AnalysisErr;
+use tl_parser::TypeExpr;
 
 /// This function will map out syntactic types (TypeExpr from tl-parser) to its semantic type
 pub fn resolve_type(te: &TypeExpr, ctx: &mut Context) -> Type {
     match te {
         TypeExpr::Named(n) => match n.as_str() {
-            "number"    => Type::Number,
-            "str"       => Type::Str,
-            "bool"      => Type::Bool,
-            "unit"      => Type::Unit,
+            "number" => Type::Number,
+            "str" => Type::Str,
+            "bool" => Type::Bool,
+            "unit" => Type::Unit,
             _ => {
                 // if the type isn't a primitive, check if it's user defined?
                 if let Some(Symbol::Type { .. }) = ctx.lookup(n) {

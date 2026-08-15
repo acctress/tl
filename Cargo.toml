@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [workspace]
-members = ["crates/tl-parser", "crates/tl-analyser"]
+members = ["crates/tl-parser", "crates/tl-analyser", "crates/tl-vm"]
 
 [dependencies]
 tl-parser   = { path = "crates/tl-parser" }

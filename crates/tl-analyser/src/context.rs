@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use tl_parser::{TypeExpr, Stmt, Expr, Program};
 use crate::error::AnalysisErr;
+use std::collections::HashMap;
+use tl_parser::{Expr, Program, Stmt, TypeExpr};
 
 /// Semantic meaning of the types used in the parser
 #[derive(Debug, Clone, PartialEq)]
@@ -26,9 +26,8 @@ pub struct TypeDef {
 pub enum Symbol {
     Variable { ty: Type },
     Function { params: Vec<Type>, ret: Type },
-    Type { def: TypeDef }
+    Type { def: TypeDef },
 }
-
 
 /// Where symbols exists in a scope, for symbol resolution.
 pub struct Scope {
@@ -37,7 +36,9 @@ pub struct Scope {
 
 impl Scope {
     pub fn new() -> Self {
-        Self{  symbols: HashMap::new() }
+        Self {
+            symbols: HashMap::new(),
+        }
     }
 }
 
@@ -69,7 +70,8 @@ impl Context {
         let scope = self.scopes.last_mut().unwrap();
         if scope.symbols.contains_key(name) {
             // push an AlreadyDefined error if the named symbol already exists
-            self.errors.push(AnalysisErr::AlreadyDefined(name.to_string()))
+            self.errors
+                .push(AnalysisErr::AlreadyDefined(name.to_string()))
         } else {
             scope.symbols.insert(name.to_string(), sym);
         }

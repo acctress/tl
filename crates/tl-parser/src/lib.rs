@@ -2,7 +2,8 @@ use std::string::ParseError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
-    LParen,     /// We don't need to hold a value for tokens alike, their enum names tells us everthing we need
+    LParen,
+    /// We don't need to hold a value for tokens alike, their enum names tells us everthing we need
     RParen,
     LBrace,
     RBrace,
@@ -56,19 +57,58 @@ impl<'a> Lexer<'a> {
 
         let cur = self.current();
         match cur {
-            b'(' => { self.advance(); Some(Token::LParen) }
-            b')' => { self.advance(); Some(Token::RParen) }
-            b'[' => { self.advance(); Some(Token::LBrace) }
-            b']' => { self.advance(); Some(Token::RBrace) }
-            b'{' => { self.advance(); Some(Token::LCurl) }
-            b'}' => { self.advance(); Some(Token::RCurl) }
-            b'+' => { self.advance(); Some(Token::Plus) }
-            b'-' => { self.advance(); Some(Token::Minus) }
-            b'*' => { self.advance(); Some(Token::Mul) }
-            b'/' => { self.advance(); Some(Token::Div) }
-            b',' => { self.advance(); Some(Token::Comma) }
-            b':' => { self.advance(); Some(Token::Colon) }
-            b'.' => { self.advance(); Some(Token::Dot) }
+            b'(' => {
+                self.advance();
+                Some(Token::LParen)
+            }
+            b')' => {
+                self.advance();
+                Some(Token::RParen)
+            }
+            b'[' => {
+                self.advance();
+                Some(Token::LBrace)
+            }
+            b']' => {
+                self.advance();
+                Some(Token::RBrace)
+            }
+            b'{' => {
+                self.advance();
+                Some(Token::LCurl)
+            }
+            b'}' => {
+                self.advance();
+                Some(Token::RCurl)
+            }
+            b'+' => {
+                self.advance();
+                Some(Token::Plus)
+            }
+            b'-' => {
+                self.advance();
+                Some(Token::Minus)
+            }
+            b'*' => {
+                self.advance();
+                Some(Token::Mul)
+            }
+            b'/' => {
+                self.advance();
+                Some(Token::Div)
+            }
+            b',' => {
+                self.advance();
+                Some(Token::Comma)
+            }
+            b':' => {
+                self.advance();
+                Some(Token::Colon)
+            }
+            b'.' => {
+                self.advance();
+                Some(Token::Dot)
+            }
             b'=' => {
                 self.advance();
                 if self.not_eof() && self.current() == b'=' {
@@ -108,19 +148,17 @@ impl<'a> Lexer<'a> {
             _ => {
                 if char::is_alphabetic(cur as char) {
                     let start = self.pos;
-                    while self.not_eof()
-                        && char::is_alphanumeric(self.current() as char)
-                    {
+                    while self.not_eof() && char::is_alphanumeric(self.current() as char) {
                         self.advance();
                     }
 
                     return Some(match self.source[start..self.pos].as_ref() {
-                        "let"       => Token::Let,
-                        "fn"        => Token::Fn,
-                        "struct"    => Token::Struct,
-                        "if"        => Token::If,
-                        "else"      => Token::Else,
-                        s           => Token::Ident(s.to_string())
+                        "let" => Token::Let,
+                        "fn" => Token::Fn,
+                        "struct" => Token::Struct,
+                        "if" => Token::If,
+                        "else" => Token::Else,
+                        s => Token::Ident(s.to_string()),
                     });
                 } else if char::is_digit(cur as char, 10) {
                     let start = self.pos;
@@ -175,7 +213,9 @@ impl<'a> Lexer<'a> {
     }
 
     fn advance(&mut self) {
-        if self.not_eof() { self.pos += 1; }
+        if self.not_eof() {
+            self.pos += 1;
+        }
     }
 
     fn skip_ws(&mut self) {
@@ -187,14 +227,21 @@ impl<'a> Lexer<'a> {
     fn not_eof(&self) -> bool {
         self.pos < self.source.len()
     }
-
 }
 
 /// An enum for binary operations
 #[derive(Debug, PartialEq, Clone)]
 pub enum BinOps {
-    Add, Sub, Mul, Div,
-    Lt, Gt, LtEq, GtEq, EqEq, NotEq,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Lt,
+    Gt,
+    LtEq,
+    GtEq,
+    EqEq,
+    NotEq,
 }
 
 /// Allow the programmer to use a type system
@@ -205,16 +252,25 @@ pub enum TypeExpr {
 }
 
 /// Here is a simple AST enum variant.
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Expr {
     Number(f64),
     String(String),
     Ident(String),
     List(Vec<Expr>),
-    BinOp { op: BinOps, lhs: Box<Expr>, rhs: Box<Expr> },
-    Call { callee: String, args: Vec<Expr> },
-    FieldAccess { receiver: Box<Expr>, field: String },
+    BinOp {
+        op: BinOps,
+        lhs: Box<Expr>,
+        rhs: Box<Expr>,
+    },
+    Call {
+        callee: String,
+        args: Vec<Expr>,
+    },
+    FieldAccess {
+        receiver: Box<Expr>,
+        field: String,
+    },
     If {
         cond: Box<Expr>,
         then: Vec<Stmt>,
@@ -222,8 +278,8 @@ pub enum Expr {
     },
     Lambda {
         params: Option<Vec<Expr>>,
-        value: Box<Expr>
-    }
+        value: Box<Expr>,
+    },
 }
 
 #[derive(Debug, PartialEq)]
@@ -250,23 +306,27 @@ pub enum Stmt {
         name: String,
         params: Vec<Param>,
         body: Vec<Stmt>,
-        ret: Option<TypeExpr>
+        ret: Option<TypeExpr>,
     },
     Struct {
         name: String,
-        fields: Vec<Field>
-    }
+        fields: Vec<Field>,
+    },
 }
 
 #[derive(Debug, PartialEq)]
 pub struct Program {
-    pub stmts: Vec<Stmt>
+    pub stmts: Vec<Stmt>,
 }
 
 /// It's good to define a custom error enum to handle errors cleanly.
 #[derive(Debug)]
 pub enum ParseErr {
-    Unexpected { expected: Token, found: Token, msg: &'static str },
+    Unexpected {
+        expected: Token,
+        found: Token,
+        msg: &'static str,
+    },
     UnexpectedToken(Token),
     UnexpectedEof,
 }
@@ -274,12 +334,15 @@ pub enum ParseErr {
 /// Now we need to pass the same lifetime annotation through to the parser and lexer
 pub struct Parser<'a> {
     lexer: Lexer<'a>,
-    current: Option<Token>
+    current: Option<Token>,
 }
 
 impl<'a> Parser<'a> {
     pub fn new(source: &'a str) -> Self {
-        let mut p = Self { lexer: Lexer::new(source), current: None };
+        let mut p = Self {
+            lexer: Lexer::new(source),
+            current: None,
+        };
         p.consume();
         p
     }
@@ -296,8 +359,12 @@ impl<'a> Parser<'a> {
     fn expect(&mut self, tk: Token, msg: &'static str) -> Result<Token, ParseErr> {
         match &self.current {
             Some(c) if *c == tk => Ok(self.consume().unwrap()),
-            Some(c) => Err(ParseErr::Unexpected { expected: tk, found: c.clone(), msg }),
-            None => Err(ParseErr::UnexpectedEof)
+            Some(c) => Err(ParseErr::Unexpected {
+                expected: tk,
+                found: c.clone(),
+                msg,
+            }),
+            None => Err(ParseErr::UnexpectedEof),
         }
     }
 
@@ -336,18 +403,22 @@ impl<'a> Parser<'a> {
 
         while let Some(t) = &self.current {
             let op = match t {
-                Token::Lt    => BinOps::Lt,
-                Token::Gt    => BinOps::Gt,
-                Token::LtEq  => BinOps::LtEq,
-                Token::GtEq  => BinOps::GtEq,
-                Token::EqEq  => BinOps::EqEq,
+                Token::Lt => BinOps::Lt,
+                Token::Gt => BinOps::Gt,
+                Token::LtEq => BinOps::LtEq,
+                Token::GtEq => BinOps::GtEq,
+                Token::EqEq => BinOps::EqEq,
                 Token::NotEq => BinOps::NotEq,
                 _ => break,
             };
 
             self.consume();
             let rhs = self.parse_term()?;
-            lhs = Expr::BinOp { op, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+            lhs = Expr::BinOp {
+                op,
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            };
         }
 
         Ok(lhs)
@@ -362,12 +433,16 @@ impl<'a> Parser<'a> {
             let op = match t {
                 Token::Plus => BinOps::Add,
                 Token::Minus => BinOps::Sub,
-                _ => break
+                _ => break,
             };
 
             self.consume();
             let rhs = self.parse_term()?;
-            lhs = Expr::BinOp { op, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+            lhs = Expr::BinOp {
+                op,
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            };
         }
 
         Ok(lhs)
@@ -395,7 +470,11 @@ impl<'a> Parser<'a> {
             self.consume();
             let factor = self.parse_factor()?;
             let rhs = self.parse_postfix(factor)?;
-            lhs = Expr::BinOp { op, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+            lhs = Expr::BinOp {
+                op,
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            };
         }
 
         Ok(lhs)
@@ -405,25 +484,28 @@ impl<'a> Parser<'a> {
     /// Grammar being parsed: factor  <- '(' _ expr _ ')' / number
     fn parse_factor(&mut self) -> Result<Expr, ParseErr> {
         match self.consume() {
-            Some(Token::Number(n))  => Ok(Expr::Number(n)),
-            Some(Token::String(s))  => Ok(Expr::String(s)),
-            Some(Token::LBrace)     => Ok(self.parse_list()?),
-            Some(Token::If)         => Ok(self.parse_if()?),
-            Some(Token::Ident(s))   => {
+            Some(Token::Number(n)) => Ok(Expr::Number(n)),
+            Some(Token::String(s)) => Ok(Expr::String(s)),
+            Some(Token::LBrace) => Ok(self.parse_list()?),
+            Some(Token::If) => Ok(self.parse_if()?),
+            Some(Token::Ident(s)) => {
                 if matches!(self.peek(), Some(Token::LParen)) {
                     self.parse_call(s)
                 } else {
                     Ok(Expr::Ident(s))
                 }
-            },
-            Some(Token::LParen)     => {
+            }
+            Some(Token::LParen) => {
                 // Here we're parsing: '(' _ expr _ ')'
                 let expr = self.parse_expr()?; // this is what makes this recursive descent
                 self.expect(Token::RParen, "expected ')'")?;
                 Ok(expr)
-            },
-            Some(Token::Fn)         => {
-                self.expect(Token::LParen, "expected '(' after `fn` to create an anonymous function")?;
+            }
+            Some(Token::Fn) => {
+                self.expect(
+                    Token::LParen,
+                    "expected '(' after `fn` to create an anonymous function",
+                )?;
                 let params = if self.peek() == Some(&Token::RParen) {
                     self.consume();
                     None
@@ -440,11 +522,11 @@ impl<'a> Parser<'a> {
 
                 Ok(Expr::Lambda {
                     params,
-                    value: Box::new(value)
+                    value: Box::new(value),
                 })
-            },
+            }
             Some(t) => Err(ParseErr::UnexpectedToken(t)),
-            None    => Err(ParseErr::UnexpectedEof),
+            None => Err(ParseErr::UnexpectedEof),
         }
     }
 
@@ -455,7 +537,10 @@ impl<'a> Parser<'a> {
         while matches!(self.peek(), Some(Token::Dot)) {
             self.consume();
             let field = self.get_identifier_value()?;
-            expr = Expr::FieldAccess { receiver: Box::new(expr), field };
+            expr = Expr::FieldAccess {
+                receiver: Box::new(expr),
+                field,
+            };
         }
 
         Ok(expr)
@@ -499,7 +584,7 @@ impl<'a> Parser<'a> {
         Ok(Expr::If {
             cond: Box::new(cond),
             then,
-            else_
+            else_,
         })
     }
 
@@ -526,11 +611,7 @@ impl<'a> Parser<'a> {
         // now simply parse an expression for the value
         let value = self.parse_expr()?;
 
-        Ok(Stmt::Let {
-            name,
-            value,
-            ty
-        })
+        Ok(Stmt::Let { name, value, ty })
     }
 
     /// Parse a function declaration and body
@@ -548,7 +629,10 @@ impl<'a> Parser<'a> {
             let param_name = self.get_identifier_value()?;
             self.expect(Token::Colon, "expected ':' after param name")?;
             let ty = self.parse_type_expr()?;
-            params.push(Param { name: param_name, ty: Some(ty) });
+            params.push(Param {
+                name: param_name,
+                ty: Some(ty),
+            });
 
             if !matches!(self.current, Some(Token::RParen)) {
                 self.expect(Token::Comma, "expected ','")?;
@@ -570,7 +654,7 @@ impl<'a> Parser<'a> {
             name,
             params,
             body,
-            ret: ret_ty
+            ret: ret_ty,
         })
     }
 
@@ -586,7 +670,9 @@ impl<'a> Parser<'a> {
         let mut fields = vec![];
 
         loop {
-            if self.current.as_ref() == Some(&Token::RCurl) { break; }
+            if self.current.as_ref() == Some(&Token::RCurl) {
+                break;
+            }
 
             let name = self.get_identifier_value()?;
             self.expect(Token::Colon, "expected ':' after field name")?;
@@ -594,7 +680,9 @@ impl<'a> Parser<'a> {
 
             fields.push(Field { name, ty });
 
-            if self.current.as_ref() == Some(&Token::RCurl) { break; }
+            if self.current.as_ref() == Some(&Token::RCurl) {
+                break;
+            }
             self.expect(Token::Comma, "expected ','")?;
         }
 

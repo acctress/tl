@@ -5,5 +5,5 @@ pub enum AnalysisErr {
     Undefined(String),
     TypeMismatch { expected: Type, found: Type },
     MissingAnnotation(String),
-    AlreadyDefined(String)
+    AlreadyDefined(String),
 }

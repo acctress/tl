@@ -1,5 +1,5 @@
-use tl_parser::Parser;
 use tl_analyser::analyse;
+use tl_parser::Parser;
 
 fn main() {
     let source = "let z: number = 2";
