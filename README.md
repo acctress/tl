@@ -1,6 +1,8 @@
 # tl
 A toy language written in Rust, to be used as a learning reference.
 
+> Run with `cargo run -- --vm --debug` to test out the REPL
+
 # Project File Structure
 ```
 - crates/

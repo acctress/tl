@@ -1,10 +1,11 @@
 use tl_parser::*;
 use crate::inst::Instr;
 use crate::opcodes::Opcode;
+use crate::vm::Value;
 
 pub struct Compiler {
     bytecode: Vec<Instr>,
-    constants: Vec<f64>,
+    constants: Vec<Value>,
     nx_reg: u8,
 }
 
@@ -23,8 +24,8 @@ impl Compiler {
         self.bytecode.push(Instr::encode(op as u8, dst, src1, src2));
     }
 
-    // add a new f64 to the constant pool, returning its index
-    fn add_const(&mut self, val: f64) -> u8 {
+    // add a new Value to the constant pool, returning its index
+    fn add_const(&mut self, val: Value) -> u8 {
         self.constants.push(val);
         (self.constants.len() - 1) as u8
     }
@@ -35,10 +36,17 @@ impl Compiler {
                 // allocate a register for loading the index of the number
                 // in the constant pool
                 let dst = self.alloc_reg();
-                let idx = self.add_const(*n);
+                let idx = self.add_const(Value::Num(*n));
                 self.emit(Opcode::Ldi, dst, idx, 0);
                 dst
             },
+            
+            Expr::String(st) => {
+                let dst = self.alloc_reg();
+                let idx = self.add_const(Value::Str(st.clone()));
+                self.emit(Opcode::Ldi, dst, idx, 0);
+                dst
+            }
 
             _ => todo!()
         }
@@ -51,7 +59,7 @@ impl Compiler {
         }
     }
 
-    pub fn done(mut self) -> (Vec<Instr>, Vec<f64>) {
+    pub fn done(mut self) -> (Vec<Instr>, Vec<Value>) {
         self.emit(Opcode::Halt, 0, 0, 0);
         (self.bytecode, self.constants)
     }
