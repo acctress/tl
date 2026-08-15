@@ -4,6 +4,7 @@ use crate::vm::{VM, VMOptions};
 mod inst;
 mod opcodes;
 mod vm;
+mod compile;
 
 pub fn run(bytecode: Vec<Instr>, opts: VMOptions) {
     let mut vm = VM::new(bytecode, opts);
