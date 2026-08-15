@@ -1,13 +1,25 @@
 use tl_parser::*;
 use crate::inst::Instr;
 use crate::opcodes::Opcode;
-use crate::vm::Value;
+use crate::value::Value;
+
+#[derive(Debug)]
+pub enum CompileError {
+    UnsupportedBinOp(BinOps),
+    UndefinedFunction(String),
+    UnsupportedExpr,
+    UnsupportedStmt,
+}
 
 pub struct Compiler {
     bytecode: Vec<Instr>,
     constants: Vec<Value>,
     nx_reg: u8,
 }
+
+impl std::error::Error for CompileError {}
+
+type CompResult<T> = Result<T, CompileError>;
 
 impl Compiler {
     pub fn new() -> Self {
@@ -30,7 +42,7 @@ impl Compiler {
         (self.constants.len() - 1) as u8
     }
 
-    pub fn compile_expr(&mut self, node: &Expr) -> u8 {
+    pub fn compile_expr(&mut self, node: &Expr) -> CompResult<u8> {
         match node {
             Expr::Number(n) => {
                 // allocate a register for loading the index of the number
@@ -38,29 +50,67 @@ impl Compiler {
                 let dst = self.alloc_reg();
                 let idx = self.add_const(Value::Num(*n));
                 self.emit(Opcode::Ldi, dst, idx, 0);
-                dst
+                Ok(dst)
             },
-            
+
             Expr::String(st) => {
                 let dst = self.alloc_reg();
                 let idx = self.add_const(Value::Str(st.clone()));
                 self.emit(Opcode::Ldi, dst, idx, 0);
-                dst
+                Ok(dst)
+            },
+
+            Expr::BinOp { op, lhs, rhs } => {
+                let lhs = self.compile_expr(lhs)?;
+                let rhs = self.compile_expr(rhs)?;
+                let dst = self.alloc_reg();
+                let opcode = match op {
+                    BinOps::Add => Opcode::Add,
+                    BinOps::Sub => Opcode::Sub,
+                    BinOps::Mul => Opcode::Mul,
+                    BinOps::Div => Opcode::Div,
+                    _ => return Err(CompileError::UnsupportedBinOp(op.clone()))
+                };
+                self.emit(opcode, dst, lhs, rhs);
+                Ok(dst)
+            },
+
+            Expr::Call { callee, args } => {
+                match callee.as_str() {
+                    "print" => {
+                        let src = self.compile_expr(&args[0])?;
+                        self.emit(Opcode::Print, 0, src, 0);
+                        Ok(0)
+                    },
+
+                    _ => Err(CompileError::UndefinedFunction(callee.clone()))
+                }
             }
 
-            _ => todo!()
+            _ => Err(CompileError::UnsupportedExpr)
         }
     }
 
-    pub fn compile_stmt(&mut self, node: &Stmt) {
+    pub fn compile_stmt(&mut self, node: &Stmt) -> CompResult<()> {
         match node {
-            Stmt::Expr(e) => { self.compile_expr(e); },
-            _ => todo!()
+            Stmt::Expr(e) => { self.compile_expr(e)?; Ok(()) },
+            _ => Err(CompileError::UnsupportedStmt)
         }
     }
 
     pub fn done(mut self) -> (Vec<Instr>, Vec<Value>) {
         self.emit(Opcode::Halt, 0, 0, 0);
         (self.bytecode, self.constants)
+    }
+}
+
+impl std::fmt::Display for CompileError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::UnsupportedBinOp(op) => write!(f, "unsupported binary operator: {:?}", op),
+            Self::UndefinedFunction(name) => write!(f, "undefined function: {name}"),
+            Self::UnsupportedExpr => write!(f, "unsupported expression"),
+            Self::UnsupportedStmt => write!(f, "unsupported statement"),
+        }
     }
 }

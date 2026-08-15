@@ -6,11 +6,15 @@ mod inst;
 mod opcodes;
 mod vm;
 mod compile;
+mod value;
 
 pub fn run(prog: &Program, opts: VMOptions) {
     let mut compiler = Compiler::new();
     for stmt in &prog.stmts {
-        compiler.compile_stmt(stmt);
+        if let Err(e) = compiler.compile_stmt(stmt) {
+            eprintln!("compile error: {e}");
+            return;
+        }
     }
 
     let (bytecode, constants) = compiler.done();

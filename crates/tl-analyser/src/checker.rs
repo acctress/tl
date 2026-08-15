@@ -1,7 +1,7 @@
 use crate::context::{Context, Symbol, Type, TypeDef};
 use crate::error::AnalysisErr;
 use crate::resolver::resolve_type;
-use tl_parser::{Expr, Stmt};
+use tl_parser::{Expr, Param, Stmt};
 
 /// This function will only check Struct and FnDecl signatures, this is so forward refs work
 pub fn hoist(stmt: &Stmt, ctx: &mut Context) {
@@ -9,16 +9,7 @@ pub fn hoist(stmt: &Stmt, ctx: &mut Context) {
         Stmt::FnDecl {
             name, params, ret, ..
         } => {
-            let param_types: Vec<Type> = params
-                .iter()
-                .map(|p| match &p.ty {
-                    Some(t) => resolve_type(t, ctx),
-                    None => {
-                        ctx.error(AnalysisErr::MissingAnnotation(p.name.clone()));
-                        Type::Unknown
-                    }
-                })
-                .collect();
+            let param_types = resolve_params(&params, ctx);
 
             let ret_ty = ret
                 .as_ref()
@@ -50,6 +41,19 @@ pub fn hoist(stmt: &Stmt, ctx: &mut Context) {
 
         _ => {}
     }
+}
+
+fn resolve_params(params: &Vec<Param>, ctx: &mut Context) -> Vec<Type> {
+    params
+        .iter()
+        .map(|p| match &p.ty {
+            Some(t) => resolve_type(t, ctx),
+            None => {
+                ctx.error(AnalysisErr::MissingAnnotation(p.name.clone()));
+                Type::Unknown
+            }
+        })
+        .collect()
 }
 
 /// This function will check a statement, such as:
@@ -89,16 +93,7 @@ pub fn check_stmt(stmt: &Stmt, ctx: &mut Context) {
             body,
         } => {
             // resolve all param types
-            let param_types: Vec<Type> = params
-                .iter()
-                .map(|p| match &p.ty {
-                    Some(t) => resolve_type(t, ctx),
-                    None => {
-                        ctx.error(AnalysisErr::MissingAnnotation(p.name.clone()));
-                        Type::Unknown
-                    }
-                })
-                .collect();
+            let param_types = resolve_params(&params, ctx);
 
             let ret_ty = ret
                 .as_ref()

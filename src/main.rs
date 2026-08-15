@@ -1,5 +1,5 @@
 use clap::Parser as ClapParser;
-use tl_analyser::analyse;
+use tl_analyser::{analyse, Builtin, Type};
 use tl_parser::Parser;
 
 #[derive(ClapParser)]
@@ -15,12 +15,16 @@ struct Args {
 }
 
 fn run_source(source: &str, args: &Args) {
+    let builtins: &[Builtin; 1] = &[
+        Builtin { name: "print", params: vec![Type::Str], ret: Type::Unit}
+    ];
+    
     let program = match Parser::new(source).parse() {
         Ok(p) => p,
         Err(e) => { eprintln!("[parse error] {e:?}"); return; }
     };
 
-    let errors = analyse(&program);
+    let errors = analyse(&program, builtins);
     if !errors.is_empty() {
         for e in &errors { eprintln!("[analysis error] {e:?}"); }
         return;

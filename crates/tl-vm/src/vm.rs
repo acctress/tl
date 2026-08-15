@@ -1,12 +1,6 @@
 use crate::inst::Instr;
 use crate::opcodes::Opcode;
-use std::ops::{Add, Sub, Mul, Div};
-
-#[derive(Clone, Debug)]
-pub enum Value {
-    Num(f64),
-    Str(String),
-}
+use crate::value::Value;
 
 pub struct VMOptions {
     pub debug: bool,
@@ -73,48 +67,11 @@ impl VM {
                 Opcode::Div => self.regs[dst] = &self.regs[src1] / &self.regs[src2],
                 Opcode::Mov => self.regs[dst] = self.regs[src1].clone(),
                 Opcode::Ldi => self.regs[dst] = self.constants[src1].clone(),
+                Opcode::Print => println!("{}", self.regs[src1]),
                 Opcode::Halt => break,
             }
         }
     }
 }
 
-impl Add for &Value {
-    type Output = Value;
-    fn add(self, rhs: &Value) -> Value {
-        match (self, rhs) {
-            (Value::Num(a), Value::Num(b)) => Value::Num(a + b),
-            _ => panic!("type error"),
-        }
-    }
-}
 
-impl Sub for &Value {
-    type Output = Value;
-    fn sub(self, rhs: &Value) -> Value {
-        match (self, rhs) {
-            (Value::Num(a), Value::Num(b)) => Value::Num(a - b),
-            _ => panic!("type error"),
-        }
-    }
-}
-
-impl Mul for &Value {
-    type Output = Value;
-    fn mul(self, rhs: &Value) -> Value {
-        match (self, rhs) {
-            (Value::Num(a), Value::Num(b)) => Value::Num(a * b),
-            _ => panic!("type error"),
-        }
-    }
-}
-
-impl Div for &Value {
-    type Output = Value;
-    fn div(self, rhs: &Value) -> Value {
-        match (self, rhs) {
-            (Value::Num(a), Value::Num(b)) => Value::Num(a / b),
-            _ => panic!("type error"),
-        }
-    }
-}

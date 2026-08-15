@@ -7,5 +7,6 @@ pub enum Opcode {
     Div,
     Mov,
     Ldi,
+    Print,
     Halt,
 }

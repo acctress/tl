@@ -1,6 +1,5 @@
 use crate::error::AnalysisErr;
 use std::collections::HashMap;
-use tl_parser::{Expr, Program, Stmt, TypeExpr};
 
 /// Semantic meaning of the types used in the parser
 #[derive(Debug, Clone, PartialEq)]
